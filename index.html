@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vinci il Tuo Oscar 🏆</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f4f0; min-height: 100vh; color: #1a1a1a; }
+  .screen { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 1.5rem; }
+  .screen.active { display: flex; flex-direction: column; }
+  .card { background: #fff; border-radius: 16px; border: 1px solid #e8e6e0; padding: 2rem; width: 100%; max-width: 420px; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.4rem; }
+  h2 { font-size: 18px; font-weight: 500; margin-bottom: 0.5rem; }
+  p { font-size: 14px; color: #666; line-height: 1.6; }
+  .field-group { margin-top: 1rem; }
+  .field-label { font-size: 12px; font-weight: 500; color: #888; margin-bottom: 4px; display: block; }
+  input[type=text] {
+    width: 100%; padding: 12px 14px; font-size: 15px; border-radius: 10px;
+    border: 1px solid #ddd; background: #f9f8f5; color: #1a1a1a; outline: none;
+  }
+  input:focus { border-color: #7F77DD; }
+  .mask-hint { font-size: 12px; color: #aaa; margin-top: 4px; }
+  .btn-primary {
+    width: 100%; padding: 13px; margin-top: 1.2rem; background: #7F77DD; color: #fff;
+    border: none; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer;
+  }
+  .btn-primary:disabled { background: #c5c3e8; cursor: default; }
+  .btn-secondary {
+    width: 100%; padding: 12px; margin-top: 10px; background: #f5f4f0; color: #444;
+    border: 1px solid #ddd; border-radius: 10px; font-size: 15px; cursor: pointer;
+  }
+  .btn-back { background: none; border: none; color: #999; font-size: 14px; cursor: pointer; margin-bottom: 1.2rem; padding: 0; }
+  .error { color: #c0392b; font-size: 13px; margin-top: 0.6rem; }
+  .progress-bar { height: 4px; background: #ece9ff; border-radius: 2px; margin-bottom: 1.2rem; }
+  .progress-fill { height: 100%; background: #7F77DD; border-radius: 2px; transition: width 0.3s; }
+  .meta { display: flex; justify-content: space-between; font-size: 13px; color: #888; margin-bottom: 0.5rem; }
+  .question-label { font-size: 11px; font-weight: 500; color: #7F77DD; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem; }
+  .question-text { font-size: 17px; font-weight: 500; line-height: 1.4; margin-bottom: 0.5rem; }
+  .question-subtext { font-size: 13px; color: #888; line-height: 1.5; margin-bottom: 1.2rem; font-style: italic; }
+  .guest-btn {
+    width: 100%; padding: 13px 16px; text-align: left; background: #fff;
+    border: 1px solid #ddd; border-radius: 10px; font-size: 15px; cursor: pointer;
+    margin-bottom: 9px; display: flex; align-items: center; gap: 10px; color: #1a1a1a;
+  }
+  .guest-btn.selected { background: #EEEDFE; border-color: #7F77DD; font-weight: 500; color: #3C3489; }
+  .radio { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #ccc; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .guest-btn.selected .radio { border-color: #7F77DD; background: #7F77DD; }
+  .radio-dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+  .guest-name-main { font-size: 15px; }
+  .guest-name-sub { font-size: 12px; color: #888; margin-top: 1px; }
+  .guest-btn.selected .guest-name-sub { color: #7F77DD; }
+  .big-emoji { font-size: 52px; text-align: center; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+
+<!-- ======= MODIFICA QUI ======= -->
+<script>
+  var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlEBxVvqUogH7Ehm_oDHja7KoMMmyDvjYOUH3eKVmTgKORH6FUW45wJykZxpE16moX0A/exec";
+
+  var QUESTIONS = [
+    "Premio 'Ma come ti è venuto in mente?' ",
+    "Premio 'Poca Spesa, Massima Resa' ",
+    "Premio 'Audio-Guida Obbligatoria' ",
+    "Premio 'Separati alla Nascita' ",
+    "Premio 'Copyright Riservato' "
+  ];
+
+  var SUBTEXTS = [
+    "Per il costume più assurdo, quello che nessuno avrebbe mai pensato di impersonare.",  // Premio 'Ma come ti è venuto in mente?'
+    "Per chi non ha usato la carta di credito, ma solo olio di gomito e tanta fantasia.",  // Premio 'Poca Spesa, Massima Resa'
+    "Perché senza la spiegazione dell'autore, saremmo ancora qui a chiederci chi è.",  // Premio 'Audio-Guida Obbligatoria'
+    "Lui/lei non ha scelto il costume, ma è stato scelto dal costume. Per chi non poteva individuare personaggio migliore per rappresentare se stesso e la sua personalità.",  // Premio 'Separati alla Nascita'
+    "Per l'idea più originale e audace della serata."   // Premio 'Copyright Riservato'
+  ];
+</script>
+<!-- ============================= -->
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="card">
+    <div class="big-emoji">🏆🏆🏆🏆🏆</div>
+    <h1 style="text-align:center">Prova a Vincere il tuo Oscar!</h1>
+    <p style="text-align:center; margin-top:0.4rem; margin-bottom:1.5rem">Il gioco della serata!<br />Registrati e vota una delle maschere presenti questa sera!</p>
+    <button class="btn-primary" onclick="goTo('screen-register')">Sono nuovo! Mi registro!</button>
+    <button class="btn-secondary" onclick="goTo('screen-returning')">Sono già registrato, voglio votare!</button>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div id="screen-register" class="screen">
+  <div class="card">
+    <button class="btn-back" onclick="goTo('screen-home')">← Indietro</button>
+    <h2>Registrati</h2>
+    <p>🖋️ Inserisci i tuoi dati!<br />⚠️ Attenzione: saranno l'opzione di voto mostrata agli altri ospiti.</p>
+
+    <div class="field-group">
+      <label class="field-label">Nome: </label>
+      <input type="text" id="reg-name" placeholder="Es. Marco">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Cognome: </label>
+      <input type="text" id="reg-surname" placeholder="Es. Rossi">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Nome della maschera: </label>
+      <input type="text" id="reg-mask" placeholder="Es. Arlecchino, Zorro, Del Cane...">
+      <p class="mask-hint">⚠️ Attenzione: Questo è il nome che gli altri vedranno quando ti voteranno!</p>
+    </div>
+
+    <div id="reg-error" class="error"></div>
+    <button class="btn-primary" id="reg-btn" onclick="doRegister()">Registrati e vai a votare →</button>
+  </div>
+</div>
+
+<!-- RETURNING -->
+<div id="screen-returning" class="screen">
+  <div class="card">
+    <button class="btn-back" onclick="goTo('screen-home')">← Indietro</button>
+    <h2>Chi si rivede!</h2>
+    <p>Inserisci nome e cognome per continuare a votare.</p>
+
+    <div class="field-group">
+      <label class="field-label">Nome: </label>
+      <input type="text" id="ret-name" placeholder="Es. Marco">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Cognome: </label>
+      <input type="text" id="ret-surname" placeholder="Es. Rossi">
+    </div>
+
+    <div id="ret-error" class="error"></div>
+    <button class="btn-primary" id="ret-btn" onclick="doReturn()">Continua →</button>
+  </div>
+</div>
+
+<!-- VOTE -->
+<div id="screen-vote" class="screen" style="align-items:stretch; background:#f5f4f0;">
+  <div style="max-width:500px; width:100%; margin:0 auto; padding:1.5rem 1rem;">
+    <div class="meta">
+      <span id="vote-progress-label">Domanda 1 di 5</span>
+      <span id="vote-user-label"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="vote-bar" style="width:20%"></div></div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="question-label">Chi merita di vincere...</div>
+      <div class="question-text" id="vote-question"></div>
+      <div class="question-subtext" id="vote-subtext"></div>
+    </div>
+    <div id="vote-options"></div>
+    <div id="vote-error" class="error" style="margin-bottom:0.5rem"></div>
+    <button class="btn-primary" id="vote-next-btn" onclick="nextQuestion()">Prossima domanda →</button>
+    <button class="btn-secondary" id="vote-back-btn" onclick="prevQuestion()" style="display:none">← Domanda precedente</button>
+  </div>
+</div>
+
+<!-- DONE -->
+<div id="screen-done" class="screen">
+  <div class="card" style="text-align:center">
+    <div class="big-emoji">🎊</div>
+    <h2>Voti inviati! ✅ </h2>
+    <p style="margin-top:0.5rem">Grazie per aver partecipato <strong id="done-name"></strong>!<br />I tuoi voti sono stati registrati.✅<br />Stefano svelerà i risultati a fine serata.<br />Intanto grazie per essere venuto/a e goditi la festa! 🎊🥳🎊</p>
+  </div>
+</div>
+
+<script>
+var myName = "", mySurname = "", myMask = "";
+var guestList = [];
+var selections = {};
+var currentQ = 0;
+
+function goTo(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function setLoading(btnId, loading, label) {
+  var btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.textContent = loading ? "Caricamento..." : label;
+}
+
+async function apiCall(params) {
+  var url = SCRIPT_URL + "?" + Object.entries(params).map(([k,v]) => k + "=" + encodeURIComponent(v)).join("&");
+  var res = await fetch(url);
+  return res.json();
+}
+
+async function doRegister() {
+  var name    = document.getElementById("reg-name").value.trim();
+  var surname = document.getElementById("reg-surname").value.trim();
+  var mask    = document.getElementById("reg-mask").value.trim();
+  var errEl   = document.getElementById("reg-error");
+  errEl.textContent = "";
+
+  if (!name)    { errEl.textContent = "SVEGLIAA!! Inserisci il tuo nome!"; return; }
+  if (!surname) { errEl.textContent = "SVEGLIAA!! Inserisci il tuo cognome!"; return; }
+  if (!mask)    { errEl.textContent = "SVEGLIAA!! Inserisci il nome della tua maschera!"; return; }
+
+  setLoading("reg-btn", true, "Registrati e vai a votare →");
+  try {
+    var r = await apiCall({ action: "register", name, surname, mask });
+    if (!r.ok) { errEl.textContent = r.error === "Sei già registrato!" ? "Sei già registrato! Usa il bottone 'Sono già registrato'. Mbapit!" : r.error; return; }
+    myName = r.name; mySurname = r.surname; myMask = r.mask;
+    await loadGuestsAndVote();
+  } catch(e) {
+    errEl.textContent = "Errore di connessione. Riprova.";
+  } finally {
+    setLoading("reg-btn", false, "Registrati e vai a votare →");
+  }
+}
+
+async function doReturn() {
+  var name    = document.getElementById("ret-name").value.trim();
+  var surname = document.getElementById("ret-surname").value.trim();
+  var errEl   = document.getElementById("ret-error");
+  errEl.textContent = "";
+
+  if (!name)    { errEl.textContent = "SVEGLIAA!! Inserisci il tuo nome!"; return; }
+  if (!surname) { errEl.textContent = "SVEGLIAA!! Inserisci il tuo cognome!"; return; }
+
+  setLoading("ret-btn", true, "Continua →");
+  try {
+    var g = await apiCall({ action: "getGuests" });
+    if (!g.ok) { errEl.textContent = "Errore. Riprova."; return; }
+
+    var found = g.guests.find(x =>
+      x.name.toLowerCase() === name.toLowerCase() &&
+      x.surname.toLowerCase() === surname.toLowerCase()
+    );
+    if (!found) { errEl.textContent = "Nome non trovato. Di ki je lu fije? - Registrati prima!"; return; }
+
+    var v = await apiCall({ action: "hasVoted", name: found.name, surname: found.surname });
+    if (v.voted) {
+      myName = found.name; mySurname = found.surname; myMask = found.mask;
+      document.getElementById("done-name").textContent = myMask;
+      goTo("screen-done"); return;
+    }
+    myName = found.name; mySurname = found.surname; myMask = found.mask;
+    guestList = g.guests;
+    startVoting();
+  } catch(e) {
+    errEl.textContent = "Errore di connessione. Riprova.";
+  } finally {
+    setLoading("ret-btn", false, "Continua →");
+  }
+}
+
+async function loadGuestsAndVote() {
+  var g = await apiCall({ action: "getGuests" });
+  guestList = g.guests || [];
+  startVoting();
+}
+
+function startVoting() {
+  currentQ = 0; selections = {};
+  renderQuestion();
+  goTo("screen-vote");
+}
+
+function renderQuestion() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  var q = QUESTIONS[currentQ];
+  document.getElementById("vote-question").textContent = q.replace("Chi merita di vincere ", "");
+  document.getElementById("vote-subtext").textContent = SUBTEXTS[currentQ] || "";
+  document.getElementById("vote-progress-label").textContent = "Domanda " + (currentQ+1) + " di " + QUESTIONS.length;
+  document.getElementById("vote-user-label").textContent = myMask + " 🎭";
+  document.getElementById("vote-bar").style.width = ((currentQ+1)/QUESTIONS.length*100) + "%";
+  document.getElementById("vote-error").textContent = "";
+  var isLast = currentQ === QUESTIONS.length - 1;
+  document.getElementById("vote-next-btn").textContent = isLast ? "Invia i miei voti! ✅" : "Prossima domanda →";
+  document.getElementById("vote-back-btn").style.display = currentQ > 0 ? "block" : "none";
+
+  // Escludi se stesso dal voto (confronto su nome+cognome)
+  var others = guestList.filter(g =>
+    !(g.name.toLowerCase() === myName.toLowerCase() && g.surname.toLowerCase() === mySurname.toLowerCase())
+  );
+
+  var container = document.getElementById("vote-options");
+  container.innerHTML = "";
+  if (others.length === 0) {
+    container.innerHTML = '<p style="color:#888;font-size:14px;margin-bottom:1rem">Nessun altro ospite ancora registrato. Aspetta che gli altri si registrino!</p>';
+    return;
+  }
+  others.forEach(function(g) {
+    var key = g.name + "|" + g.surname;
+    var sel = selections[currentQ] === key;
+    var btn = document.createElement("button");
+    btn.className = "guest-btn" + (sel ? " selected" : "");
+    btn.innerHTML =
+      '<span class="radio">' + (sel ? '<span class="radio-dot"></span>' : '') + '</span>' +
+      '<span><div class="guest-name-main">' + g.mask + '</div>' +
+      '<div class="guest-name-sub">' + g.name + ' ' + g.surname + '</div></span>';
+    btn.onclick = function() { selections[currentQ] = key; renderQuestion(); };
+    container.appendChild(btn);
+  });
+}
+
+function prevQuestion() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); }
+}
+
+async function nextQuestion() {
+  if (!selections[currentQ]) { document.getElementById("vote-error").textContent = "SVEGLIAA!! Seleziona qualcuno prima di continuare!"; return; }
+  if (currentQ < QUESTIONS.length - 1) { currentQ++; renderQuestion(); return; }
+
+  setLoading("vote-next-btn", true, "Invia i miei voti! ✅");
+  try {
+    // Risolvi le chiavi nome|cognome nei nomi maschera per i voti
+    var params = { action: "vote", name: myName, surname: mySurname, mask: myMask };
+    for (var i = 0; i < QUESTIONS.length; i++) {
+      var key = selections[i] || "";
+      var guest = guestList.find(g => (g.name + "|" + g.surname) === key);
+      params["v" + i] = guest ? guest.mask : key;
+    }
+    var r = await apiCall(params);
+    if (!r.ok) { document.getElementById("vote-error").textContent = r.error; return; }
+    document.getElementById("done-name").textContent = myMask;
+    goTo("screen-done");
+  } catch(e) {
+    document.getElementById("vote-error").textContent = "Errore di connessione. Riprova.";
+  } finally {
+    setLoading("vote-next-btn", false, "Invia i miei voti! ✅");
+  }
+}
+</script>
+</body>
+</html>

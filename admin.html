@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PartyVote — Dashboard Admin</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f4f0; min-height: 100vh; color: #1a1a1a; }
+  .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; }
+  .card { background:#fff; border-radius:16px; border:1px solid #e8e6e0; padding:1.5rem; }
+  h1 { font-size:20px; font-weight:500; }
+  h2 { font-size:16px; font-weight:500; margin-bottom:0.75rem; }
+  input[type=password], input[type=text] {
+    width:100%; padding:12px 14px; font-size:15px; border-radius:10px;
+    border:1px solid #ddd; background:#f9f8f5; color:#1a1a1a; outline:none; margin-top:1rem;
+  }
+  input:focus { border-color:#7F77DD; }
+  .btn { padding:10px 18px; border-radius:10px; border:none; font-size:14px; cursor:pointer; font-weight:500; }
+  .btn-primary { background:#7F77DD; color:#fff; }
+  .btn-primary:disabled { background:#c5c3e8; }
+  .btn-outline { background:#fff; border:1px solid #ddd; color:#444; }
+  .btn-danger { background:#fff; border:1px solid #f5c6c6; color:#c0392b; }
+  .error { color:#c0392b; font-size:13px; margin-top:0.5rem; }
+  .stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:1.5rem; }
+  .stat { background:#f9f8f5; border-radius:12px; padding:1rem; text-align:center; }
+  .stat-num { font-size:28px; font-weight:500; }
+  .stat-label { font-size:12px; color:#888; margin-top:2px; }
+  .badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:12px; background:#EEEDFE; color:#3C3489; border:0.5px solid #AFA9EC; margin:3px; }
+  .badge.gray { background:#f5f4f0; color:#888; border-color:#e0ddd6; }
+  .progress-row { margin-bottom:10px; }
+  .progress-meta { display:flex; justify-content:space-between; font-size:13px; margin-bottom:3px; }
+  .bar-bg { height:6px; background:#f0eee8; border-radius:3px; }
+  .bar-fill { height:100%; border-radius:3px; background:#D3D1C7; transition:width 0.4s; }
+  .bar-fill.winner { background:#7F77DD; }
+  .winner-box { background:#EEEDFE; border-radius:10px; padding:0.75rem 1rem; margin-top:0.75rem; color:#3C3489; font-size:14px; font-weight:500; }
+  .q-label { font-size:11px; font-weight:500; color:#7F77DD; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.4rem; }
+  .q-text { font-size:15px; font-weight:500; margin-bottom:0.4rem; line-height:1.4; }
+  .q-subtext { font-size:13px; color:#888; font-style:italic; margin-bottom:1rem; line-height:1.5; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; padding:6px 8px; color:#888; font-weight:500; border-bottom:1px solid #eee; }
+  td { padding:8px; border-bottom:0.5px solid #f0ede6; }
+  .header-row { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:1.5rem; }
+  .btn-row { display:flex; gap:8px; }
+  #app { display:none; padding:1.5rem 1rem; max-width:720px; margin:0 auto; }
+</style>
+</head>
+<body>
+
+<!-- ======= MODIFICA QUI ======= -->
+<script>
+
+  var ADMIN_PASSWORD = "VedereVoti2026";
+	
+  var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlEBxVvqUogH7Ehm_oDHja7KoMMmyDvjYOUH3eKVmTgKORH6FUW45wJykZxpE16moX0A/exec";
+
+  var QUESTIONS = [
+    "Premio 'Ma come ti è venuto in mente?' ",
+    "Premio 'Poca Spesa, Massima Resa' ",
+    "Premio 'Audio-Guida Obbligatoria' ",
+    "Premio 'Separati alla Nascita' ",
+    "Premio 'Copyright Riservato' "
+  ];
+
+  var SUBTEXTS = [
+    "Per il costume più assurdo, quello che nessuno avrebbe mai pensato di impersonare.",  // Premio 'Ma come ti è venuto in mente?'
+    "Per chi non ha usato la carta di credito, ma solo olio di gomito e tanta fantasia.",  // Premio 'Poca Spesa, Massima Resa'
+    "Perché senza la spiegazione dell'autore, saremmo ancora qui a chiederci chi è.",  // Premio 'Audio-Guida Obbligatoria'
+    "Lui/lei non ha scelto il costume, ma è stato scelto dal costume. Per chi non poteva individuare personaggio migliore per rappresentare se stesso e la sua personalità.",  // Premio 'Separati alla Nascita'
+    "Per l'idea più originale e audace della serata."   // Premio 'Copyright Riservato'
+  ];
+</script>
+<!-- ============================= -->
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen">
+  <div class="card" style="width:100%;max-width:380px">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:40px;margin-bottom:0.5rem">🔐</div>
+      <h1>Area organizzatore</h1>
+      <p style="font-size:13px;color:#888;margin-top:0.25rem">Inserisci la password per vedere i risultati</p>
+    </div>
+    <input type="password" id="pw-input" placeholder="Password..." onkeydown="if(event.key==='Enter') doLogin()">
+    <div id="pw-error" class="error"></div>
+    <button class="btn btn-primary" style="width:100%;padding:13px;margin-top:1rem;font-size:15px" onclick="doLogin()">Accedi</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="app">
+  <div class="header-row">
+    <div>
+      <h1>Dashboard organizzatore</h1>
+      <p style="font-size:12px;color:#888;margin-top:2px" id="last-refresh"></p>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" id="refresh-btn" onclick="loadAll()">↻ Aggiorna</button>
+      <button class="btn btn-danger" onclick="confirmClear()">Cancella tutto</button>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-num" id="stat-guests">—</div><div class="stat-label">Ospiti registrati</div></div>
+    <div class="stat"><div class="stat-num" id="stat-voted">—</div><div class="stat-label">Voti inviati</div></div>
+    <div class="stat"><div class="stat-num" id="stat-missing">—</div><div class="stat-label">Non hanno votato</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem">
+    <h2>Ospiti registrati</h2>
+    <div id="guests-list"><p style="color:#888;font-size:14px">Caricamento...</p></div>
+    <p style="font-size:12px;color:#aaa;margin-top:0.75rem">Viola ✓ = ha votato &nbsp;|&nbsp; Grigio = non ha ancora votato</p>
+  </div>
+
+  <h2 style="margin-bottom:1rem">Risultati sondaggi</h2>
+  <div id="results-section"></div>
+
+  <div class="card" style="margin-top:1.5rem;margin-bottom:2rem">
+    <h2>Log dettagliato voti</h2>
+    <div style="overflow-x:auto" id="log-table"></div>
+  </div>
+</div>
+
+<script>
+var guests = [];
+var voteRows = [];
+
+function doLogin() {
+  var pw = document.getElementById("pw-input").value;
+  if (pw === ADMIN_PASSWORD) {
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    loadAll();
+  } else {
+    document.getElementById("pw-error").textContent = "Password errata!";
+  }
+}
+
+async function apiCall(params) {
+  var url = SCRIPT_URL + "?" + Object.entries(params).map(([k,v]) => k+"="+encodeURIComponent(v)).join("&");
+  var res = await fetch(url);
+  return res.json();
+}
+
+async function loadAll() {
+  document.getElementById("refresh-btn").textContent = "...";
+  try {
+    var g = await apiCall({ action: "getGuests" });
+    guests = g.guests || [];
+
+    // Carica i voti leggendo il foglio tramite una call dedicata
+    var v = await apiCall({ action: "getVotes" });
+    voteRows = v.votes || [];
+
+    render();
+    document.getElementById("last-refresh").textContent = "Aggiornato alle " + new Date().toLocaleTimeString("it-IT", {hour:"2-digit",minute:"2-digit"});
+  } catch(e) {
+    alert("Errore di connessione: " + e);
+  }
+  document.getElementById("refresh-btn").textContent = "↻ Aggiorna";
+}
+
+function render() {
+  // guests = [{name, surname, mask}], voteRows = [{name, surname, mask, votes, time}]
+  var voterKeys = voteRows.map(r => (r.name + "|" + r.surname).toLowerCase());
+
+  // Stats
+  document.getElementById("stat-guests").textContent = guests.length;
+  document.getElementById("stat-voted").textContent = voteRows.length;
+  document.getElementById("stat-missing").textContent = guests.length - voteRows.length;
+
+  // Guests list
+  var gl = document.getElementById("guests-list");
+  if (guests.length === 0) { gl.innerHTML = '<p style="color:#888;font-size:14px">Nessun ospite ancora.</p>'; }
+  else {
+    gl.innerHTML = guests.map(g => {
+      var key = (g.name + "|" + g.surname).toLowerCase();
+      var voted = voterKeys.includes(key);
+      var label = g.mask + ' <span style="font-size:11px;opacity:0.7">(' + g.name + ' ' + g.surname + ')</span>';
+      return '<span class="badge' + (voted ? "" : " gray") + '">' + label + (voted ? " ✓" : "") + '</span>';
+    }).join("");
+  }
+
+  // Results
+  var rs = document.getElementById("results-section");
+  rs.innerHTML = QUESTIONS.map(function(q, qi) {
+    var tally = {};
+    voteRows.forEach(function(row) { var pick = row.votes[qi]; if (pick) tally[pick] = (tally[pick]||0)+1; });
+    var entries = Object.entries(tally).sort((a,b) => b[1]-a[1]);
+    var maxV = entries.length ? entries[0][1] : 0;
+    var winners = entries.filter(e => e[1]===maxV).map(e=>e[0]);
+
+    var bars = entries.map(function(e) {
+      var pct = voteRows.length ? Math.round(e[1]/voteRows.length*100) : 0;
+      var isW = winners.includes(e[0]);
+      return '<div class="progress-row">' +
+        '<div class="progress-meta"><span style="font-weight:'+(isW?500:400)+'">'+( isW?"🏆 ":"")+e[0]+'</span><span style="color:#888">'+e[1]+' vot'+(e[1]===1?"o":"i")+' ('+pct+'%)</span></div>' +
+        '<div class="bar-bg"><div class="bar-fill'+(isW?" winner":"") + '" style="width:'+pct+'%"></div></div></div>';
+    }).join("");
+
+    var winBox = entries.length === 0 ? '<p style="color:#aaa;font-size:13px">Nessun voto ancora.</p>' :
+      '<div class="winner-box">' + (winners.length===1
+        ? "🏆 Vincitore: " + winners[0] + " con " + maxV + " vot"+(maxV===1?"o":"i")
+        : "🤝 Pareggio tra: " + winners.join(", ") + " (" + maxV + " voti ciascuno)")
+      + "</div>";
+
+    return '<div class="card" style="margin-bottom:1rem">' +
+      '<div class="q-label">Domanda '+(qi+1)+'</div>' +
+      '<div class="q-text">'+q+'</div>' +
+      '<div class="q-subtext">'+(SUBTEXTS[qi]||'')+'</div>' +
+      bars + winBox + '</div>';
+  }).join("");
+
+  // Log table
+  var lt = document.getElementById("log-table");
+  if (voteRows.length === 0) { lt.innerHTML = '<p style="color:#888;font-size:14px">Nessun voto ancora.</p>'; return; }
+  var head = '<tr><th>Nome</th><th>Cognome</th><th>Maschera</th>' + QUESTIONS.map((_,i) => '<th>D'+(i+1)+'</th>').join("") + '<th>Orario</th></tr>';
+  var rows = voteRows.slice().sort((a,b)=>a.surname.localeCompare(b.surname)).map(function(row) {
+    return '<tr><td style="font-weight:500">'+row.name+'</td>' +
+      '<td style="font-weight:500">'+row.surname+'</td>' +
+      '<td style="color:#7F77DD;font-weight:500">🎭 '+row.mask+'</td>' +
+      QUESTIONS.map((_,i) => '<td style="color:#666">'+(row.votes[i]||"—")+'</td>').join("") +
+      '<td style="color:#aaa;font-size:12px">'+row.time+'</td></tr>';
+  }).join("");
+  lt.innerHTML = '<table><thead>'+head+'</thead><tbody>'+rows+'</tbody></table>';
+}
+
+function confirmClear() {
+  if (confirm("Sei sicura di voler cancellare tutti i dati? Questa operazione è irreversibile.")) {
+    alert("Per cancellare i dati, svuota manualmente i fogli 'Ospiti' e 'Voti' nel tuo Google Sheet (lascia solo la riga di intestazione).");
+  }
+}
+</script>
+</body>
+</html>
