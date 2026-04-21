@@ -260,8 +260,7 @@ function startVoting() {
 }
 
 function renderQuestion() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  var q = QUESTIONS[currentQ];
+  var q = QUESTIONS[currentQ];  
   document.getElementById("vote-question").textContent = q.replace("Chi merita di vincere ", "");
   document.getElementById("vote-subtext").textContent = SUBTEXTS[currentQ] || "";
   document.getElementById("vote-progress-label").textContent = "Domanda " + (currentQ+1) + " di " + QUESTIONS.length;
@@ -303,7 +302,7 @@ function prevQuestion() {
 
 async function nextQuestion() {
   if (!selections[currentQ]) { document.getElementById("vote-error").textContent = "SVEGLIAA!! Seleziona qualcuno prima di continuare!"; return; }
-  if (currentQ < QUESTIONS.length - 1) { currentQ++; renderQuestion(); return; }
+  if (currentQ < QUESTIONS.length - 1) { currentQ++; window.scrollTo({ top: 0, behavior: 'smooth' }); renderQuestion(); return; }
 
   setLoading("vote-next-btn", true, "Invia i miei voti! ✅");
   try {
