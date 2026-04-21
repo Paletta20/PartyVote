@@ -260,7 +260,7 @@ function startVoting() {
 }
 
 function renderQuestion() {
-  var q = QUESTIONS[currentQ];  
+  var q = QUESTIONS[currentQ];
   document.getElementById("vote-question").textContent = q.replace("Chi merita di vincere ", "");
   document.getElementById("vote-subtext").textContent = SUBTEXTS[currentQ] || "";
   document.getElementById("vote-progress-label").textContent = "Domanda " + (currentQ+1) + " di " + QUESTIONS.length;
@@ -297,7 +297,7 @@ function renderQuestion() {
 }
 
 function prevQuestion() {
-  if (currentQ > 0) { currentQ--; renderQuestion(); }
+  if (currentQ > 0) { currentQ--; window.scrollTo({ top: 0, behavior: 'smooth' }); renderQuestion(); }
 }
 
 async function nextQuestion() {
